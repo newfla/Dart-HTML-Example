@@ -7,82 +7,86 @@ import 'package:html/dom.dart';
 class GameBuilder {
 
   //Fields
-    final GamePlatform  _platform;
-    static final String _url = "https://offertevg.it/gspo.php";
-    static Element _table;
+  final GamePlatform  _platform;
+  static final String _url = "https://offertevg.it/gspo.php";
+  static Element _table;
 
   //Constuctor
-    GameBuilder(this._platform);
+  GameBuilder(this._platform);
 
   //Get html
-    static Future<void> loadPage() async {
+  static Future<void> loadPage() async {
 
-      HttpClientRequest request = await HttpClient().getUrl(Uri.parse(_url));
-      HttpClientResponse response = await request.close(); 
+    HttpClientRequest request = await HttpClient().getUrl(Uri.parse(_url));
+    HttpClientResponse response = await request.close(); 
       
-      StringBuffer buffer = StringBuffer();
+    StringBuffer buffer = StringBuffer();
 
-      Document page;
-      List<Element> elements;
+    Document page;
+    List<Element> elements;
 
-      await for (var contents in response.transform(Utf8Decoder()))
-        buffer.write(contents);
+    await for (var contents in response.transform(Utf8Decoder()))
+      buffer.write(contents);
 
-      page = parse(buffer.toString());
+    page = parse(buffer.toString());
 
-      elements = page.body.getElementsByTagName("ul");
-      for (Element element in elements) {
-        if(element.attributes["id"] == "list"){
-          _table = element;
-          break;
-        }
+    elements = page.body.getElementsByTagName("ul");
+    for (Element element in elements) {
+      if(element.attributes["id"] == "list"){
+        _table = element;
+        break;
       }
     }
-  
+  }
+
   //Build gameList based on the selected Platform
-    List<Game> buildPlatformList(){
-      List<Game> games = List<Game>();
+  List<Game> buildPlatformList(){
+    
+    List<Game> games = List<Game>();
 
-      for (Element element in _table.getElementsByTagName("li")) {
-        if(checkStringType(element.getElementsByTagName("span")[0].innerHtml)){
+    for (Element element in _table.getElementsByTagName("li")) {
 
-          String name = extractGameName(element.getElementsByTagName("h2")[0].innerHtml);
-          List<String> prices = extractPrices(element.getElementsByTagName("p")[0].innerHtml);
+      if(checkStringType(element.getElementsByTagName("span")[0].innerHtml)){
 
-          games.add( Game(name, _platform, prices[0], prices[1]));
-        }
+        String name = extractGameName(element.getElementsByTagName("h2")[0].innerHtml);
+        String url = extractURL(element.getElementsByTagName("a")[0]);
+        List<String> prices = extractPrices(element.getElementsByTagName("p")[0].innerHtml);
+
+        games.add( Game(name, _platform, prices[0], prices[1], url));
       }
-      return games;
     }
+    return games;
+  }
+  
+  bool checkStringType (String typeString){
+    return _platform.toString().contains(typeString.substring(1,typeString.length-2));
+  }
 
-    bool checkStringType (String typeString){
-      return _platform.toString().contains(typeString.substring(1,typeString.length-2));
-    }
+  String extractGameName(String name){
 
-    String extractGameName(String name){
+    int index = 1 + name.lastIndexOf(">");
 
-      int index = 1 + name.lastIndexOf(">");
+    return name.substring(index);
+  }
 
-      name = name.substring(index);
+  List<String> extractPrices(String priceDesc){
 
-      return name;
-    }
+    List<String> temp = priceDesc.split(":");
+    List<String> prices = [" ", " "];
 
+    try {
+      if (temp.length == 3)
+        prices[0] = temp[2].substring(0,temp[2].indexOf("."));
+      else if (temp.length >= 4){
+        prices[0] = temp[2].substring(0,temp[2].indexOf("."));
+        prices[1] = temp[3].substring(0,temp[3].indexOf("."));
+      }
+    } catch (e) { }
 
-    List<String> extractPrices(String priceDesc){
+    return prices;
+  }
 
-      List<String> temp = priceDesc.split(":");
-      List<String> prices = [" ", " "];
-
-      try {
-        if (temp.length == 3)
-          prices[0] = temp[2].substring(0,temp[2].indexOf("."));
-        else if (temp.length >= 4){
-          prices[0] = temp[2].substring(0,temp[2].indexOf("."));
-          prices[1] = temp[3].substring(0,temp[3].indexOf("."));
-        }
-      } catch (e) { }
-
-      return prices;
-    }
+  String extractURL(Element element){
+    return element.attributes["href"];
+  }
 }
