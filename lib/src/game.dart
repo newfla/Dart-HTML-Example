@@ -15,4 +15,4 @@ class Game {
 }
 
   //Enum Game Platoform
-  enum GamePlatform{PS4, XBOXOne, Switch}
+  enum GamePlatform{PS4, XBOXOne, SWITCH}

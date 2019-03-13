@@ -59,7 +59,7 @@ class GameBuilder {
   }
   
   bool checkStringType (String typeString){
-    return _platform.toString().contains(typeString.substring(1,typeString.length-2));
+    return _platform.toString().toUpperCase().contains(typeString.substring(1,typeString.length-2).toUpperCase());
   }
 
   String extractGameName(String name){

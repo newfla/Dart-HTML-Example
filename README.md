@@ -1,7 +1,6 @@
 A simple asynchronus Dart 2.2 HTML parser example 
 
-Created from templates made available by Stagehand under a BSD-style
-[license](https://github.com/dart-lang/stagehand/blob/master/LICENSE).
+Wrapper for [offertevg.it](https://offertevg.it/gspo.php)
 
 ## Usage
 
