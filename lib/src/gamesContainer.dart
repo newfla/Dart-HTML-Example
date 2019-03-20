@@ -25,19 +25,15 @@ class GamesContainer {
 
   //Public Populate Method
   Future<void> populate() async {
-
-    Set<Future<void>> futures = Set();
-
+    
     await _loadPage;
 
     for (var platform in GamePlatform.values)
-      futures.add(_internalPopulate(platform));
-
-    await Future.wait(futures);
+      _internalPopulate(platform);
   }
 
   //Private Populate
-  Future<void> _internalPopulate(GamePlatform platform) async {
-    _mapPlatformGames[platform] = await _mapPlatformBuilder[platform].buildPlatformList();
+  void _internalPopulate(GamePlatform platform) {
+    _mapPlatformGames[platform] =  _mapPlatformBuilder[platform].buildPlatformList();
   }
 }
